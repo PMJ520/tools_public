@@ -302,13 +302,13 @@ require chap = yes
 refuse pap = yes
 require authentication = yes
 name = l2tpd
-pppoptfile = /etc/hy/options.xl2tpd
+pppoptfile = /etc/ppp/options.xl2tpd
 length bit = yes
 EOF
 
 # Set xl2tpd options
-conf_bk "/etc/hy/options.xl2tpd"
-cat > /etc/hy/options.xl2tpd <<EOF
+conf_bk "/etc/ppp/options.xl2tpd"
+cat > /etc/ppp/options.xl2tpd <<EOF
 +mschap-v2
 ipcp-accept-local
 ipcp-accept-remote
@@ -325,8 +325,8 @@ connect-delay 5000
 EOF
 
 # Create VPN credentials
-conf_bk "/etc/hy/chap-secrets"
-cat > /etc/hy/chap-secrets <<EOF
+conf_bk "/etc/ppp/chap-secrets"
+cat > /etc/ppp/chap-secrets <<EOF
 "$VPN_USER" xl2tpd "$VPN_PASSWORD" *
 EOF
 
@@ -457,7 +457,7 @@ sysctl -e -q -p
 
 # Update file attributes
 chmod +x /etc/rc.local
-chmod 600 /etc/ipsec.secrets* /etc/hy/chap-secrets* /etc/ipsec.d/passwd*
+chmod 600 /etc/ipsec.secrets* /etc/ppp/chap-secrets* /etc/ipsec.d/passwd*
 
 # Apply new IPTables rules
 iptables-restore < "$IPT_FILE"
