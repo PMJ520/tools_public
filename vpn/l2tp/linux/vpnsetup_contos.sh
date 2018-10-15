@@ -21,6 +21,29 @@ YOUR_IPSEC_PSK=''
 YOUR_USERNAME=''
 YOUR_PASSWORD=''
 
+read -p "IPsec password(PSK):" inIPsecPassword
+if [ -z "${inIPsecPassword}" ];then
+	echo "no input"
+else 
+  YOUR_IPSEC_PSK=${inIPsecPassword}
+  echo "IPsec Password entered successfully"
+fi
+
+read -p "username:" usernameInput
+if [ -z "${usernameInput}" ];then
+	echo "no input"
+else 
+  YOUR_USERNAME=${usernameInput}
+  echo "Username entered successfully"
+fi
+
+read -p "login password:" passwordInput
+if [ -z "${passwordInput}" ];then
+	echo "no input"
+else 
+  YOUR_PASSWORD=${passwordInput}
+  echo "Login Password entered successfully"
+fi
 
 # =====================================================
 
