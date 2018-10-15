@@ -20,7 +20,7 @@
 YOUR_IPSEC_PSK=''
 YOUR_USERNAME=''
 YOUR_PASSWORD=''
-
+:'
 read -p "enter IPsec password(PSK) or [Enter] use random PSK:" inIPsecPassword
 if [ -z "${inIPsecPassword}" ];then
 	echo "no input"
@@ -44,7 +44,7 @@ else
   YOUR_PASSWORD=${passwordInput}
   echo "Login Password entered successfully"
 fi
-
+'
 # =====================================================
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -327,7 +327,7 @@ EOF
 # Create VPN credentials
 conf_bk "/etc/ppp/chap-secrets"
 cat > /etc/ppp/chap-secrets <<EOF
-"$VPN_USER" xl2tpd "$VPN_PASSWORD" *
+"$VPN_USER" l2tpd "$VPN_PASSWORD" *
 EOF
 
 conf_bk "/etc/ipsec.d/passwd"
