@@ -21,7 +21,7 @@ YOUR_IPSEC_PSK=''
 YOUR_USERNAME=''
 YOUR_PASSWORD=''
 
-read -p "IPsec password(PSK):" inIPsecPassword
+read -p "enter IPsec password(PSK) or [Enter] use random PSK:" inIPsecPassword
 if [ -z "${inIPsecPassword}" ];then
 	echo "no input"
 else 
@@ -29,7 +29,7 @@ else
   echo "IPsec Password entered successfully"
 fi
 
-read -p "username:" usernameInput
+read -p "enter username or [Enter] use vpnuser :" usernameInput
 if [ -z "${usernameInput}" ];then
 	echo "no input"
 else 
@@ -37,7 +37,7 @@ else
   echo "Username entered successfully"
 fi
 
-read -p "login password:" passwordInput
+read -p "enter login password or [Enter] use random password:" passwordInput
 if [ -z "${passwordInput}" ];then
 	echo "no input"
 else 
