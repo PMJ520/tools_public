@@ -2,12 +2,11 @@
 #
 # Script for automatic setup of an IPsec VPN server on CentOS/RHEL 6 and 7.
 # Works on any dedicated server or virtual private server (VPS) except OpenVZ.
-# Script for automatic setup of an IPsec VPN server on Ubuntu LTS and Debian--https://github.com/PMJ520/linux/new/master/vpn/l2tp
-#
-# DO NOT RUN THIS SCRIPT ON YOUR PC OR MAC!
+# Script for automatic setup of an IPsec VPN server on Ubuntu LTS and Debian--https://github.com/PMJ520/tools_public/edit/master/vpn/l2tp/linux
+
 #
 # The latest version of this script is available at:
-# https://github.com/PMJ520/linux/tree/master/vpn/l2tp
+# https://github.com/PMJ520/tools_public/edit/master/vpn/l2tp/linux
 #
 # Copyright (C) Peng Mingjiang <1314@520.kim>
 
