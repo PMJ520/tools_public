@@ -1,0 +1,36 @@
+#!/bin/sh
+#chkconfig: 2345 80 90
+#
+# Simple Redis init.d script conceived to work on Linux systems
+# as it does use of the /proc filesystem.
+
+REDISIP=172.16.16.13
+REDISPORT=6681
+REDISPASS=runR720
+EXEC=/office/work/app/redis/redis6681/src/redis-server
+CLIEXEC=/office/work/app/redis/redis6681/src/redis-cli
+
+PIDFILE=/office/work/data/redis/redis6681/redis_cluster_6681.pid
+CONF="/office/work/app/redis/redis6681/redis.conf"
+
+case "$1" in
+    start)
+        echo "Starting Redis server..."
+        $EXEC $CONF
+        ;;
+    stop)
+        PID=$(cat $PIDFILE)
+        echo "Stopping ..."
+        $CLIEXEC -h $REDISIP -p $REDISPORT -a $REDISPASS shutdown
+        sleep 1
+        while [ -x /proc/${PID} ]
+        do
+            echo "Waiting for Redis to shutdown ..."
+            sleep 1
+        done
+        echo "Redis stopped"
+        ;;
+    *)
+        echo "Please use start or stop as first argument"
+        ;;
+esac
