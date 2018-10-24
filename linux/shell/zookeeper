@@ -1,0 +1,14 @@
+#!/bin/sh
+# chkconfig: 345 99 10
+# description: Auto-starts zookeeper
+
+RETVAL=0
+export JAVA_HOME=/office/work/app/java/jdk7
+export ZOOKEEPER_HOME=/office/work/app/zookeeper
+case $1 in  
+        start) su root $ZOOKEEPER_HOME/bin/zkServer.sh start;;  
+        stop) su root $ZOOKEEPER_HOME/bin/zkServer.sh stop;;  
+        status) su root $ZOOKEEPER_HOME/bin/zkServer.sh status;;  
+        restart) su root $ZOOKEEPER_HOME/bin/zkServer.sh restart;;  
+        *) echo "require start|stop|status|restart" ;;  
+esac  
