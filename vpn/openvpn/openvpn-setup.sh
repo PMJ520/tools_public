@@ -544,16 +544,17 @@ function installQuestions () {
 		until [[ $TLS_SIG =~ [1-2] ]]; do
 				read -rp "Control channel additional security mechanism [1-2]: " -e -i 1 TLS_SIG
 		done
-		
-		echo ""
-		echo "Tell me a name for the client."
-		echo "Use one word only, no special characters."
 
-		until [[ "$CLIENT_start" =~ ^[a-zA-Z0-9_]+$ ]]; do
-			read -rp "Client name: " -e -i client CLIENT_start
-		done
 
 	fi
+			
+	echo ""
+	echo "Tell me a name for the client."
+	echo "Use one word only, no special characters."
+
+	until [[ "$CLIENT_start" =~ ^[a-zA-Z0-9_]+$ ]]; do
+		read -rp "Client name: " -e -i client CLIENT_start
+	done
 	echo ""
 	echo "Okay, that was all I needed. We are ready to setup your OpenVPN server now."
 	echo "You will be able to generate a client at the end of the installation."
