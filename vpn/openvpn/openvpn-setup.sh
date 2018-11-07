@@ -236,7 +236,7 @@ function installQuestions () {
 	echo "   2) Custom"
 	echo "   3) Random [49152-65535]"
 	until [[ "$PORT_CHOICE" =~ ^[1-3]$ ]]; do
-		read -rp "Port choice [1-3]: " -e -i 2 PORT_CHOICE
+		read -rp "Port choice [1-3]: " -e -i 3 PORT_CHOICE
 	done
 	case $PORT_CHOICE in
 		1)
@@ -259,7 +259,7 @@ function installQuestions () {
 	echo "   1) UDP"
 	echo "   2) TCP"
 	until [[ "$PROTOCOL_CHOICE" =~ ^[1-2]$ ]]; do
-		read -rp "Protocol [1-2]: " -e -i 1 PROTOCOL_CHOICE
+		read -rp "Protocol [1-2]: " -e -i 2 PROTOCOL_CHOICE
 	done
 	case $PROTOCOL_CHOICE in
 		1)
@@ -544,6 +544,15 @@ function installQuestions () {
 		until [[ $TLS_SIG =~ [1-2] ]]; do
 				read -rp "Control channel additional security mechanism [1-2]: " -e -i 1 TLS_SIG
 		done
+		
+		echo ""
+		echo "Tell me a name for the client."
+		echo "Use one word only, no special characters."
+
+		until [[ "$CLIENT_start" =~ ^[a-zA-Z0-9_]+$ ]]; do
+			read -rp "Client name: " -e -i client CLIENT_start
+		done
+
 	fi
 	echo ""
 	echo "Okay, that was all I needed. We are ready to setup your OpenVPN server now."
@@ -943,6 +952,7 @@ function newClient () {
 	echo "Tell me a name for the client."
 	echo "Use one word only, no special characters."
 
+	CLIENT=$CLIENT_start
 	until [[ "$CLIENT" =~ ^[a-zA-Z0-9_]+$ ]]; do
 		read -rp "Client name: " -e -i client CLIENT
 	done
@@ -952,7 +962,7 @@ function newClient () {
 	echo "(e.g. encrypt the private key with a password)"
 	echo "   1) Add a passwordless client"
 	echo "   2) Use a password for the client"
-
+	PASS=1
 	until [[ "$PASS" =~ ^[1-2]$ ]]; do
 		read -rp "Select an option [1-2]: " -e -i 1 PASS
 	done
