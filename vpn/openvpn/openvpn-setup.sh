@@ -204,6 +204,7 @@ function installQuestions () {
 		echo "It seems this server is behind NAT. What is its public IPv4 address or hostname?"
 		echo "We need it for the clients to connect to the server."
 		echo "Use public network accessible IPv4 addresses here."
+		echo -e "\033[31m If the wait time is long, update the line 209 to the public IP to fill manually \033[0m" 
 		until [[ "$PUBLICIP" != "" ]]; do
 			read -rp "Public IPv4 address or hostname: " -e -i $(wget -4qO- "http://whatismyip.akamai.com/") PUBLICIP
 		done
@@ -336,13 +337,13 @@ function installQuestions () {
 	if [[ $CUSTOMIZE_ENC == "n" ]];then
 		# Use default, sane and fast parameters
 		CIPHER="AES-128-GCM"
-		CERT_TYPE="1" # ECDSA
-		CERT_CURVE="prime256v1"
-		CC_CIPHER="TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256"
-		DH_TYPE="1" # ECDH
-		DH_CURVE="prime256v1"
+		CC_CIPHER="TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256"
 		HMAC_ALG="SHA256"
-		TLS_SIG="1" # tls-crypt
+		CERT_TYPE="2" # RSA
+		RSA_KEY_SIZE="2048"
+		DH_TYPE="2" # DH
+		DH_KEY_SIZE="2048"
+		TLS_SIG="2" # tls-auth
 	else
 		echo ""
 		echo "Choose which cipher you want to use for the data channel:"
@@ -547,14 +548,13 @@ function installQuestions () {
 
 
 	fi
-			
 	echo ""
 	echo "Tell me a name for the client."
 	echo "Use one word only, no special characters."
-
 	until [[ "$CLIENT_start" =~ ^[a-zA-Z0-9_]+$ ]]; do
-		read -rp "Client name: " -e -i client CLIENT_start
-	done
+		read -rp "Client name: " -e -i "vpnClient"$(date "+%Y%m%d%H%M%S") CLIENT_start
+	done		
+
 	echo ""
 	echo "Okay, that was all I needed. We are ready to setup your OpenVPN server now."
 	echo "You will be able to generate a client at the end of the installation."
@@ -694,7 +694,11 @@ keepalive 10 120
 topology subnet
 server 10.8.0.0 255.255.255.0
 ifconfig-pool-persist ipp.txt" >> /etc/openvpn/server.conf
-
+	
+	VPCSUBNETDEFAULT=$(route -n | grep eth0 | grep 255.255| awk '{print $1,$3}' | tail -n 1| awk '{print $1}')
+	VPCMASKDEFAULT=$(route -n | grep eth0 | grep 255.255| awk '{print $1,$3}' | tail -n 1| awk '{print $2}')
+	echo "push \"route $VPCSUBNETDEFAULT $VPCMASKDEFAULT vpn_gateway\"" >> /etc/openvpn/server.conf
+	
 	# DNS resolvers
 	case $DNS in
 		1)
