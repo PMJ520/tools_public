@@ -2,19 +2,20 @@
 
 # Secure OpenVPN server installer for Debian, Ubuntu, CentOS, Fedora and Arch Linux
 # https://github.com/PMJ520/tools_public/tree/master/vpn/openvpn
-
+# 
+# 是否是root
 function isRoot () {
 	if [ "$EUID" -ne 0 ]; then
 		return 1
 	fi
 }
-
+# 是否启用了tun
 function tunAvailable () {
 	if [ ! -e /dev/net/tun ]; then
 		return 1
 	fi
 }
-
+# 判断系统内核
 function checkOS () {
 	if [[ -e /etc/debian_version ]]; then
 		OS="debian"
@@ -74,7 +75,7 @@ function checkOS () {
 		exit 1
 	fi
 }
-
+# 检查环境是否支持本脚本
 function initialCheck () {
 	if ! isRoot; then
 		echo "Sorry, you need to run this as root"
@@ -86,7 +87,7 @@ function initialCheck () {
 	fi
 	checkOS
 }
-
+# 安装dns之unbound
 function installUnbound () {
 	if [[ ! -e /etc/unbound/unbound.conf ]]; then
 
@@ -183,7 +184,7 @@ private-address: ::ffff:0:0/96' > /etc/unbound/openvpn.conf
 		systemctl enable unbound
 		systemctl restart unbound
 }
-
+# 询问配置参数
 function installQuestions () {
 	echo "Welcome to the OpenVPN installer!"
 	echo ""
@@ -560,7 +561,7 @@ function installQuestions () {
 	echo "You will be able to generate a client at the end of the installation."
 	read -n1 -r -p "Press any key to continue..."
 }
-
+# 安装OPenVPN
 function installOpenVPN () {
 	# Run setup questions first
 	installQuestions
@@ -686,10 +687,13 @@ function installOpenVPN () {
 	fi
 
 	echo "dev tun
+sndbuf 0
+rcvbuf 0
 user nobody
 group $NOGROUP
 persist-key
 persist-tun
+duplicate-cn
 keepalive 10 120
 topology subnet
 server 10.8.0.0 255.255.255.0
@@ -802,9 +806,20 @@ verb 3" >> /etc/openvpn/server.conf
 	mkdir -p /var/log/openvpn
 
 	# Enable routing
-	echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.d/20-openvpn.conf
+#	echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.d/20-openvpn.conf
+	# Resolve to disable routing forwarding by default, such as tencent cloud, netease cloud and other companies
+	sed -i '/\<net.ipv4.ip_forward\>/c\net.ipv4.ip_forward=1' /etc/sysctl.conf
+	if ! grep -q "\<net.ipv4.ip_forward\>" /etc/sysctl.conf; then
+		echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf
+	fi
+	
 	if [[ "$IPV6_SUPPORT" = 'y' ]]; then
-		echo 'net.ipv6.conf.all.forwarding=1' >> /etc/sysctl.d/20-openvpn.conf
+#		echo 'net.ipv6.conf.all.forwarding=1' >> /etc/sysctl.d/20-openvpn.conf
+		# Resolve to disable routing forwarding by default, such as tencent cloud, netease cloud and other companies
+		sed -i '/\<net.ipv6.conf.all.forwarding\>/c\net.ipv6.conf.all.forwarding=1' /etc/sysctl.conf
+		if ! grep -q "\<net.ipv6.conf.all.forwarding\>" /etc/sysctl.conf; then
+			echo 'net.ipv6.conf.all.forwarding=1' >> /etc/sysctl.conf
+		fi
 	fi
 	# Avoid an unneeded reboot
 	sysctl --system
@@ -951,7 +966,7 @@ fi
 	newClient
 	echo "If you want to add more clients, you simply need to run this script another time!"
 }
-
+# 生成一个新的客户端配置文件
 function newClient () {
 	echo ""
 	echo "Tell me a name for the client."
@@ -1002,6 +1017,9 @@ function newClient () {
 	# Generates the custom client.ovpn
 	cp /etc/openvpn/client-template.txt "$homeDir/$CLIENT.ovpn"
 	{
+		echo "sndbuf 0"
+		echo "rcvbuf 0"
+
 		echo "<ca>"
 		cat "/etc/openvpn/easy-rsa/pki/ca.crt"
 		echo "</ca>"
@@ -1033,7 +1051,7 @@ function newClient () {
 	echo "Client $CLIENT added, the configuration file is available at $homeDir/$CLIENT.ovpn."
 	echo "Download the .ovpn file and import it in your OpenVPN client."
 }
-
+# 删除某个客户端配置文件
 function revokeClient () {
 	NUMBEROFCLIENTS=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep -c "^V")
 	if [[ "$NUMBEROFCLIENTS" = '0' ]]; then
@@ -1069,7 +1087,7 @@ function revokeClient () {
 	echo ""
 	echo "Certificate for client $CLIENT revoked."
 }
-
+# 删除dns
 function removeUnbound () {
 	# Remove OpenVPN-related config
 	sed -i 's|include: \/etc\/unbound\/openvpn.conf||' /etc/unbound/unbound.conf
@@ -1105,7 +1123,7 @@ function removeUnbound () {
 		echo "Unbound wasn't removed."
 	fi
 }
-
+# 删除OpenVPN
 function removeOpenVPN () {
 	echo ""
 	read -rp "Do you really want to remove OpenVPN? [y/n]: " -e -i n REMOVE
@@ -1166,7 +1184,7 @@ function removeOpenVPN () {
 		find /root/ -maxdepth 1 -name "*.ovpn" -delete
 		rm -rf /etc/openvpn
 		rm -rf /usr/share/doc/openvpn*
-		rm -f /etc/sysctl.d/20-openvpn.conf
+		# rm -f /etc/sysctl.d/20-openvpn.conf
 		rm -rf /var/log/openvpn
 
 		# Unbound
@@ -1180,7 +1198,7 @@ function removeOpenVPN () {
 		echo "Removal aborted!"
 	fi
 }
-
+# 安装OpenVPN后的操作
 function manageMenu () {
 	clear
 	echo "It looks like OpenVPN is already installed."
